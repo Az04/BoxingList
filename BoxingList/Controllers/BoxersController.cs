@@ -46,14 +46,14 @@ namespace BoxingList.Controllers
         //GET EDIT BOXER INFO
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null) //Required Property reverification as specified in Model
             {
                 return NotFound();
             }
 
             var boxer = await _db.Boxers.SingleOrDefaultAsync(m => m.Id == id);
 
-            if (boxer == null)
+            if (boxer == null)  //Required Property reverification as specified in Model
             {
                 return NotFound();
             }
@@ -68,10 +68,65 @@ namespace BoxingList.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Update(boxer);
+                //_db.Update(boxer);
+
+                var BoxerfromDb = await _db.Boxers.FirstOrDefaultAsync(b => b.Id == boxer.Id);
+                BoxerfromDb.Name = boxer.Name;
+                BoxerfromDb.Division = boxer.Division;
+                BoxerfromDb.Record = boxer.Record;
+
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            return View(boxer);
+        }
+
+        //GET DELETE BOXER 
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) //Required Property reverification as specified in Model
+            {
+                return NotFound();
+            }
+
+            var boxer = await _db.Boxers.SingleOrDefaultAsync(m => m.Id == id);
+
+            if (boxer == null)  //Required Property reverification as specified in Model
+            {
+                return NotFound();
+            }
+
+            return View(boxer);
+        }
+
+        //POST DELETE BOXER
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveBoxer(int? id)
+        {
+            var boxer = await _db.Boxers.SingleOrDefaultAsync(m => m.Id == id);
+            _db.Boxers.Remove(boxer);
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
+        }
+
+        //GET DETAILS BOXER 
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) //Required Property reverification as specified in Model
+            {
+                return NotFound();
+            }
+
+            var boxer = await _db.Boxers.SingleOrDefaultAsync(m => m.Id == id);
+
+            if (boxer == null)  //Required Property reverification as specified in Model
+            {
+                return NotFound();
+            }
+
             return View(boxer);
         }
     }
